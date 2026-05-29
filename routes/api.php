@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultationController;
-use app\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientRecordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;

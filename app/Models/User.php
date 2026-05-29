@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // 👈 1. ADD THIS IMPORT
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    // 👇 2. ADD 'HasApiTokens' TO THIS LINE
-    use HasApiTokens, HasFactory, Notifiable; 
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
+    protected $keyType = 'int';
+    public $incrementing = true;
 
     protected $fillable = [
         'first_name',
