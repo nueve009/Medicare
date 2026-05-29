@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultationController;
-use app\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientRecordController;
+use App\Http\Controllers\DiseaseController;
+use App\Http\Controllers\GenericController;
+use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('patients', PatientController::class);
     Route::apiResource('patient-records', PatientRecordController::class);
+    Route::apiResource('diseases', DiseaseController::class);
+    Route::apiResource('generics', GenericController::class);
+    Route::apiResource('brands', BrandController::class);
     Route::apiResource('consultations', ConsultationController::class);
 
     // Logout and destroy token
