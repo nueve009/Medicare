@@ -7,14 +7,14 @@ use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
-    // 1. READ ALL (GET /api/patients)
+    // 1. READ ALL (GET /api/patients/including dummy patients for testing)
     public function index()
     {
         $patients = Patient::with('creator:user_id,first_name,last_name')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->get();
 
-        return response()->json($patients);
+        return response()->json(['data' => $patients]); 
     }
 
     // 2. CREATE (POST /api/patients)
