@@ -22,12 +22,20 @@ class User extends Authenticatable
         'phone_number',
         'role',
         'password',
+        'prc_id',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    // Inside app/Models/User.php
+    public function clinics()
+    {
+        // A user can belong to many clinics.
+        return $this->belongsToMany(Clinic::class, 'clinic_user', 'user_id', 'clinic_id')->withTimestamps();
+    }
 
     protected function casts(): array
     {

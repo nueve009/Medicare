@@ -9,11 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-            $table->id(); // Automatically creates an auto-incrementing primary key
+            $table->id('patient_id'); // Automatically creates an auto-incrementing primary key
             
             // FK to the user who created this record
             $table->foreignId('created_by')->constrained('users', 'user_id')->onDelete('cascade');
-            
+            // Link the patient to a specific clinic
+            $table->foreignId('clinic_id')->constrained('clinics', 'clinic_id')->onDelete('cascade');
             $table->string('first_name');
             $table->string('last_name');
             $table->enum('gender', ['male', 'female', 'other'])->nullable();;

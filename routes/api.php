@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientRecordController;
+use App\Http\Controllers\GenericController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +21,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin creates new users
     Route::post('/register', [AuthController::class, 'register']);
+    // Logout and destroy token
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('patients', PatientController::class);
     Route::apiResource('patient-records', PatientRecordController::class);
     Route::apiResource('consultations', ConsultationController::class);
-
-    // Logout and destroy token
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('generics', GenericController::class);
+    
 });

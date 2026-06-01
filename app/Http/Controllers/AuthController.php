@@ -29,7 +29,8 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'role' => $user->role 
+                    'role' => $user->role,
+                    'prc_id' => $user->prc_id
                 ]
             ], 200);
         }
@@ -49,7 +50,8 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone_number' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:doctor,assistant,admin' // Enforcing strict enums
+            'role' => 'required|in:doctor,assistant,admin',
+            'prc_id' => 'required_if:role,doctor|nullable|string|max:255',
         ]);
 
         $user = User::create([
@@ -58,7 +60,8 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'phone_number' => $validated['phone_number'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role']
+            'role' => $validated['role'],
+            'prc_id' => $validated['prc_id'] ?? null,
         ]);
 
         return response()->json([
@@ -68,7 +71,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
-                'role' => $user->role
+                'role' => $user->role,
+                'prc_id' => $user->prc_id,
             ]
         ], 201);
     }

@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('generics', function (Blueprint $table) {
+            // Set the custom primary key
+            $table->id('generic_id'); 
+            
+            $table->string('generic_name')->unique();
+            
+            $table->timestamps();
+            $table->softDeletes(); // For archiving
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('generics');
+    }
+};
