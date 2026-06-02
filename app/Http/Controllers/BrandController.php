@@ -15,7 +15,7 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'generic_id' => 'required|exists:generics,generic_id',
+            'generic_id' => 'required|exists:generics,id',
             'brand_name' => 'required|string|max:255|unique:brands,brand_name',
         ]);
 
@@ -36,7 +36,7 @@ class BrandController extends Controller
     {
         $validatedData = $request->validate([
             'generic_id' => 'sometimes|exists:generics,generic_id',
-            'brand_name' => 'sometimes|string|max:255|unique:brands,brand_name,' . $brand->brand_id . ',brand_id',
+            'brand_name' => 'sometimes|string|max:255|unique:brands,brand_name,' . $brand->id
         ]);
 
         $brand->update($validatedData);

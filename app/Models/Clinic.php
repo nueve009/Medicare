@@ -10,13 +10,7 @@ class Clinic extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $primaryKey = 'clinic_id';
-
-    protected $fillable = [
-        'name',
-        'address',
-        'phone_number'
-    ];
+    protected $fillable = ['clinic_name', 'doctor_id', 'address', 'phone_number'];
 
     // The users (doctors/assistants) that work at this clinic
     public function users()
@@ -27,12 +21,12 @@ class Clinic extends Model
     // The patients registered at this clinic
     public function patients()
     {
-        return $this->hasMany(Patient::class, 'clinic_id', 'clinic_id');
+        return $this->hasMany(Patient::class, 'clinic_id',);
     }
 
     // The consultations that happened at this clinic
     public function consultations()
     {
-        return $this->hasMany(Consultation::class, 'clinic_id', 'clinic_id');
+        return $this->hasMany(Consultation::class, 'clinic_id');
     }
 }

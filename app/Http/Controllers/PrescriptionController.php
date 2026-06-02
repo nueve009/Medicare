@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prescription;
 use Illuminate\Http\Request;
 
-class PatientRecordController extends Controller
+class PrescriptionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,7 +26,7 @@ class PatientRecordController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Prescription $prescription)
     {
         //
     }
@@ -33,7 +34,7 @@ class PatientRecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Prescription $prescription)
     {
         //
     }
@@ -41,7 +42,7 @@ class PatientRecordController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Prescription $prescription)
     {
         //
     }

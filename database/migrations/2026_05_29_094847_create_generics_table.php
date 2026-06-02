@@ -9,11 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('generics', function (Blueprint $table) {
-            // Set the custom primary key
-            $table->id('generic_id'); 
+            $table->id(); 
             
             $table->string('generic_name')->unique();
-            
+            //Add uses string
             $table->timestamps();
             $table->softDeletes(); // For archiving
         });

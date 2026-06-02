@@ -9,12 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('diseases', function (Blueprint $table) {
-            // Custom Primary Key
-            $table->id('disease_id'); 
-            
+            $table->id();            
             // Unique index prevents duplicate diseases from being added
             $table->string('disease_name')->unique();
-            $table->text('description')->nullable();
+            $table->text('description')->nullable(); //Remove
             $table->text('symptoms')->nullable();
             
             $table->timestamps();

@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 class PatientController extends Controller
 {
     // 1. READ ALL (GET /api/patients)
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Patient::with('creator:user_id,first_name,last_name')
+        $patients = Patient::with('creator:id,first_name,last_name')
+            ->where('clinic_id', $request->header('X-Clinic-ID'))
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -29,10 +30,10 @@ class PatientController extends Controller
             'phone_number' => 'nullable|string|max:20',
             'address'      => 'nullable|string',
             'blood_type'   => 'nullable|string|max:5',
+            'clinic_id' => 'required|exists:clinics,id',
         ]);
 
-        // Use user_id since that is the actual primary key on the users table
-        $validatedData['created_by'] = $request->user()->user_id;
+        $validatedData['created_by'] = $request->user()->id;
 
         $patient = Patient::create($validatedData);
 
@@ -46,7 +47,7 @@ class PatientController extends Controller
     public function show(Patient $patient)
     {
         return response()->json(
-            $patient->load('creator:user_id,first_name,last_name')
+            $patient->load('creator:id,first_name,last_name')
         );
     }
 
@@ -56,7 +57,7 @@ class PatientController extends Controller
         $validatedData = $request->validate([
             'first_name'   => 'sometimes|string|max:255',
             'last_name'    => 'sometimes|string|max:255',
-            'gender'       => 'nullable|string|in:Male,Female,Other',
+            'gender'       => 'nullable|string|in:male,female,other',
             'birthdate'    => 'sometimes|date',
             'email'        => 'nullable|email|unique:patients,email,' . $patient->id,
             'phone_number' => 'nullable|string|max:20',

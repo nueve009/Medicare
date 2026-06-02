@@ -10,9 +10,6 @@ class Brand extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // Explicitly tell Laravel the primary key is brand_id
-    protected $primaryKey = 'brand_id';
-
     protected $fillable = [
         'generic_id',
         'brand_name',
@@ -21,6 +18,6 @@ class Brand extends Model
     // Define the relationship to the Generic model
     public function generic()
     {
-        return $this->belongsTo(Generic::class, 'generic_id', 'generic_id');
+        return $this->belongsTo(Generic::class, 'generic_id');
     }
 }

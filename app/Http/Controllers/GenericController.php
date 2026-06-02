@@ -35,7 +35,7 @@ class GenericController extends Controller
     public function update(Request $request, Generic $generic)
     {
         $validatedData = $request->validate([
-            'generic_name' => 'sometimes|string|max:255|unique:generics,generic_name,' . $generic->generic_id . ',generic_id',
+            'generic_name' => 'sometimes|string|max:255|unique:generics,generic_name,' . $generic->id,
         ]);
 
         $generic->update($validatedData);

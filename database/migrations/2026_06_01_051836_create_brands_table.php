@@ -9,11 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('brands', function (Blueprint $table) {
-            // Set the custom primary key
-            $table->id('brand_id');
+            $table->id();
             
             // Explicitly point the foreign key to the 'generic_id' column on the 'generics' table
-            $table->foreignId('generic_id')->constrained('generics', 'generic_id')->onDelete('cascade');
+            $table->foreignId('generic_id')->constrained('generics')->onDelete('cascade');
             
             $table->string('brand_name')->unique();
             

@@ -37,7 +37,7 @@ class DiseaseController extends Controller
     {
         $validatedData = $request->validate([
             // The unique validation string needs to know the custom primary key column name ('disease_id') to ignore the current record correctly
-            'disease_name' => 'sometimes|string|max:255|unique:diseases,disease_name,' . $disease->disease_id . ',disease_id',
+            'disease_name' => 'sometimes|string|max:255|unique:diseases,disease_name,' . $disease->id,
             'description' => 'nullable|string',
             'symptoms' => 'nullable|string',
         ]);
@@ -58,4 +58,4 @@ class DiseaseController extends Controller
             'message' => 'Disease archived successfully'
         ]);
     }
-}
+}   

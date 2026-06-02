@@ -12,6 +12,7 @@ class Patient extends Model
 
     protected $fillable = [
         'created_by',
+        'clinic_id',
         'first_name',
         'last_name',
         'gender',
@@ -26,5 +27,15 @@ class Patient extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+        public function clinic()
+    {
+        return $this->belongsTo(Clinic::class, 'clinic_id');
+    }
+
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class, 'patient_id');
     }
 }

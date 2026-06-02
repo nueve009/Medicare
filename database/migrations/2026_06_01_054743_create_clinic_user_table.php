@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('clinic_user', function (Blueprint $table) {
             $table->id();
             
-            $table->foreignId('clinic_id')->constrained('clinics', 'clinic_id')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->foreignId('clinic_id')->constrained('clinics')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             
             $table->timestamps();
             

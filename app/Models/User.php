@@ -11,10 +11,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $primaryKey = 'user_id';
-    protected $keyType = 'int';
-    public $incrementing = true;
-
     protected $fillable = [
         'first_name',
         'last_name',
@@ -43,5 +39,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class, 'doctor_id');
     }
 }
