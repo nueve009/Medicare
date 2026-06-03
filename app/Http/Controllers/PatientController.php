@@ -12,6 +12,7 @@ class PatientController extends Controller
     {
         $patients = Patient::with('creator:id,first_name,last_name')
             ->where('clinic_id', $request->header('X-Clinic-ID'))
+            ->where('created_by', $request->user()->id)  // ← add this
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -24,7 +25,7 @@ class PatientController extends Controller
         $validatedData = $request->validate([
             'first_name'   => 'required|string|max:255',
             'last_name'    => 'required|string|max:255',
-            'gender'       => 'nullable|string|in:Male,Female,Other',
+            'gender'       => 'nullable|string|in:male,female,other',
             'birthdate'    => 'required|date',
             'email'        => 'nullable|email|unique:patients,email',
             'phone_number' => 'nullable|string|max:20',
@@ -44,16 +45,23 @@ class PatientController extends Controller
     }
 
     // 3. READ ONE (GET /api/patients/{id})
-    public function show(Patient $patient)
+        public function show(Request $request, Patient $patient)
     {
+        if ($patient->created_by !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         return response()->json(
             $patient->load('creator:id,first_name,last_name')
         );
     }
 
-    // 4. UPDATE (PUT/PATCH /api/patients/{id})
     public function update(Request $request, Patient $patient)
     {
+        if ($patient->created_by !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $validatedData = $request->validate([
             'first_name'   => 'sometimes|string|max:255',
             'last_name'    => 'sometimes|string|max:255',
@@ -73,9 +81,12 @@ class PatientController extends Controller
         ]);
     }
 
-    // 5. DELETE (DELETE /api/patients/{id})
-    public function destroy(Patient $patient)
+    public function destroy(Request $request, Patient $patient)
     {
+        if ($patient->created_by !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $patient->delete();
 
         return response()->json([

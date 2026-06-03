@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        // Register custom middleware aliases
+    $middleware->alias([
+        'clinic.access' => \App\Http\Middleware\EnsureClinicAccess::class,
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
