@@ -13,15 +13,21 @@ class ConsultationController extends Controller
     // Scoped to the active clinic via X-Clinic-ID header
     public function index(Request $request)
     {
-        $consultations = Consultation::with([
+        $query = Consultation::with([
                 'doctor:id,first_name,last_name',
                 'patient:id,first_name,last_name',
+                'prescriptions.generic:id,generic_name', // Added this
+                'prescriptions.brand:id,brand_name',     // Added this
             ])
             ->where('clinic_id', $request->header('X-Clinic-ID'))
-            ->orderBy('consultation_date', 'desc')
-            ->paginate(20);
+            ->orderBy('consultation_date', 'desc');
 
-        return response()->json($consultations);
+        // Optional filter by patient
+        if ($request->query('patient_id')) {
+            $query->where('patient_id', $request->query('patient_id'));
+        }
+
+        return response()->json($query->paginate(20));
     }
 
     // 2. CREATE (POST /api/consultations)
@@ -92,19 +98,25 @@ class ConsultationController extends Controller
             }
 
             // Create prescriptions if provided
-            if (!empty($validated['prescriptions'])) {
-                foreach ($validated['prescriptions'] as $rx) {
-                    Prescription::create([
-                        'consultation_id' => $consultation->id,
-                        'generic_id'      => $rx['generic_id'],
-                        'brand_id'        => $rx['brand_id'],
-                        'dosage'          => $rx['dosage'],
-                        'frequency'       => $rx['frequency'],
-                        'duration'        => $rx['duration'],
-                        'instructions'    => $rx['instructions'] ?? null,
-                    ]);
-                }
+        if (!empty($validated['prescriptions'])) {
+            foreach ($validated['prescriptions'] as $rx) {
+                // Fetch the current names from the database
+                $genericName = \App\Models\Generic::find($rx['generic_id'])?->generic_name;
+                $brandName = \App\Models\Brand::find($rx['brand_id'])?->brand_name;
+
+                Prescription::create([
+                    'consultation_id'       => $consultation->id,
+                    'generic_id'            => $rx['generic_id'],
+                    'generic_name_snapshot' => $genericName, // Save the string!
+                    'brand_id'              => $rx['brand_id'],
+                    'brand_name_snapshot'   => $brandName,   // Save the string!
+                    'dosage'                => $rx['dosage'],
+                    'frequency'             => $rx['frequency'],
+                    'duration'              => $rx['duration'],
+                    'instructions'          => $rx['instructions'] ?? null,
+                ]);
             }
+        }
 
             return $consultation;
         });
