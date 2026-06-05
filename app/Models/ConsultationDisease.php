@@ -14,6 +14,19 @@ class ConsultationDisease extends Model
     protected $fillable = [
         'consultation_id',
         'disease_id',
+        'disease_name_snapshot',
+        'symptoms',
+        'status',
         'type',
     ];
+
+    public function consultation()
+    {
+        return $this->belongsTo(Consultation::class, 'consultation_id');
+    }
+
+    public function disease()
+    {
+        return $this->belongsTo(Disease::class, 'disease_id')->withTrashed();
+    }
 }

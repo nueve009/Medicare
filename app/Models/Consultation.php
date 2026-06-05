@@ -55,7 +55,7 @@ class Consultation extends Model
     public function diseases()
     {
         return $this->belongsToMany(Disease::class, 'consultation_diseases')
-                    ->withPivot('type')
+                    ->withPivot('type', 'status', 'symptoms', 'disease_name_snapshot')
                     ->withTimestamps();
     }
 

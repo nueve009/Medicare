@@ -56,9 +56,11 @@ class ConsultationController extends Controller
             'oxygen_saturation'    => 'nullable|integer|min:0|max:100',
 
             // Diseases — optional array
-            'diseases'             => 'nullable|array',
-            'diseases.*.disease_id' => 'required_with:diseases|exists:diseases,id',
-            'diseases.*.type'      => 'required_with:diseases|in:primary,secondary',
+            'diseases'                  => 'nullable|array',
+            'diseases.*.disease_id'     => 'required_with:diseases|exists:diseases,id',
+            'diseases.*.type'           => 'required_with:diseases|in:primary,secondary',
+            'diseases.*.status'         => 'nullable|in:ongoing,treated,referred',
+            'diseases.*.symptoms'       => 'nullable|string',
 
             // Prescriptions — optional array
             'prescriptions'                => 'nullable|array',
@@ -91,10 +93,16 @@ class ConsultationController extends Controller
 
             // Attach diseases to the pivot table if provided
             if (!empty($validated['diseases'])) {
-                $diseases = collect($validated['diseases'])->mapWithKeys(fn($d) => [
-                    $d['disease_id'] => ['type' => $d['type']]
-                ]);
-                $consultation->diseases()->attach($diseases);
+                foreach ($validated['diseases'] as $d) {
+                    $disease = \App\Models\Disease::find($d['disease_id']);
+
+                    $consultation->diseases()->attach($d['disease_id'], [
+                        'type'                  => $d['type'],
+                        'status'                => $d['status'] ?? 'ongoing',
+                        'symptoms'              => $d['symptoms'] ?? null,
+                        'disease_name_snapshot' => $disease ? $disease->disease_name : 'Unknown',
+                    ]);
+                }
             }
 
             // Create prescriptions if provided

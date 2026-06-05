@@ -42,7 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // -------------------------------------------------------
     Route::apiResource('generics', GenericController::class);
     Route::apiResource('brands', BrandController::class);
+
     Route::apiResource('diseases', DiseaseController::class);
+    Route::get('diseases/{disease}/patients', [DiseaseController::class, 'patients']);
+    Route::patch('diseases/{disease}/diagnoses/{diagnosis}', [DiseaseController::class, 'updateDiagnosisStatus']);
 
     // -------------------------------------------------------
     // Clinic-scoped Routes
