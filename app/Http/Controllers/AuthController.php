@@ -57,7 +57,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
             'role' => 'required|in:doctor,assistant',
             'prc_id' => 'required_if:role,doctor|nullable|string|max:255',
-
+            'specialization' => 'required_if:role,doctor|nullable|string|max:255',
             // SIMPLIFIED: Since admins aren't created here, clinics are ALWAYS required
             'clinic_ids' => 'required|array|min:1',
             'clinic_ids.*' => 'exists:clinics,id',
@@ -71,6 +71,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'prc_id' => $validated['prc_id'] ?? null,
+            'specialization' => $validated['specialization'] ?? null,
         ]);
 
         $user->clinics()->attach($validated['clinic_ids']);
