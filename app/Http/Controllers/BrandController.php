@@ -10,10 +10,25 @@ class BrandController extends Controller
 {
     public function index(Request $request)
     {
-        $brands = Brand::where('created_by', $request->user()->id)
-            ->with('generic:id,generic_name')
-            ->orderBy('brand_name', 'asc')
-            ->get();
+        $user = $request->user();
+
+        if ($user->role === 'assistant') {
+            $clinicId = $request->header('X-Clinic-ID');
+            $doctorIds = \App\Models\Clinic::find($clinicId)
+                ->users()
+                ->where('role', '=', 'doctor')
+                ->pluck('users.id');
+
+            $brands = Brand::whereIn('created_by', $doctorIds)
+                ->with('generic:id,generic_name')
+                ->orderBy('brand_name', 'asc')
+                ->get();
+        } else {
+            $brands = Brand::where('created_by', '=', $user->id)
+                ->with('generic:id,generic_name')
+                ->orderBy('brand_name', 'asc')
+                ->get();
+        }
 
         return response()->json($brands);
     }

@@ -9,10 +9,26 @@ class GenericController extends Controller
 {
     public function index(Request $request)
     {
-        $generics = Generic::where('created_by', $request->user()->id)
-            ->withCount('brands')
-            ->orderBy('generic_name', 'asc')
-            ->get();
+        $user = $request->user();
+
+        if ($user->role === 'assistant') {
+            // Find the doctor(s) sharing the same clinic
+            $clinicId = $request->header('X-Clinic-ID');
+            $doctorIds = \App\Models\Clinic::find($clinicId)
+                ->users()
+                ->where('role', '=', 'doctor')
+                ->pluck('users.id');
+
+            $generics = Generic::whereIn('created_by', $doctorIds)
+                ->withCount('brands')
+                ->orderBy('generic_name', 'asc')
+                ->get();
+        } else {
+            $generics = Generic::where('created_by', '=', $user->id)
+                ->withCount('brands')
+                ->orderBy('generic_name', 'asc')
+                ->get();
+        }
 
         return response()->json($generics);
     }
