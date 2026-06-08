@@ -10,12 +10,19 @@ class Brand extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
+        'created_by',
         'generic_id',
         'brand_name',
     ];
 
-    // Define the relationship to the Generic model
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function generic()
     {
         return $this->belongsTo(Generic::class, 'generic_id');

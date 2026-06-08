@@ -32,7 +32,15 @@ class DiseaseController extends Controller
         }
 
         $validated = $request->validate([
-            'disease_name' => 'required|string|max:255',
+            'disease_name' => [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('diseases')->where(fn($query) => 
+                    $query->where('clinic_id', $request->header('X-Clinic-ID'))
+                        ->whereNull('deleted_at')
+                ),
+            ],
             'description'  => 'nullable|string',
             'symptoms'     => 'nullable|string',
         ]);
@@ -76,7 +84,15 @@ class DiseaseController extends Controller
         $this->authorizeClinicalAccess($request, $disease);
 
         $validated = $request->validate([
-            'disease_name' => 'sometimes|string|max:255',
+            'disease_name' => [
+                'sometimes',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('diseases')->where(fn($query) =>
+                    $query->where('clinic_id', $request->header('X-Clinic-ID'))
+                        ->whereNull('deleted_at')
+                )->ignore($disease->id),
+            ],
             'description'  => 'nullable|string',
             'symptoms'     => 'nullable|string',
         ]);
