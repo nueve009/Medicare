@@ -10,17 +10,11 @@ class PatientController extends Controller
     public function index(Request $request)
     {
         $clinicId = $request->header('X-Clinic-ID');
-        $user = $request->user();
 
-        $query = Patient::where('clinic_id', '=', $clinicId);
-
-        // Doctors only see their own patients
-        // Assistants see all patients in the shared clinic
-        if ($user->role === 'doctor') {
-            $query->where('created_by', '=', $user->id);
-        }
-
-        $patients = $query->orderBy('last_name', 'asc')->paginate(20);
+        // Both doctors and assistants see all patients in the shared clinic
+        $patients = Patient::where('clinic_id', '=', $clinicId)
+            ->orderBy('last_name', 'asc')
+            ->paginate(20);
 
         return response()->json($patients);
     }
@@ -105,25 +99,60 @@ class PatientController extends Controller
             'message' => 'Patient archived successfully',
         ]);
     }
+    
+    public function diagnoses(Request $request, Patient $patient)
+    {
+        // Enforce same access rules as show()
+        $this->authorizePatientAccess($request, $patient);
+
+        $diagnoses = \App\Models\ConsultationDisease::with([
+                'consultation:id,consultation_date,chief_complaint,notes,clinic_id',
+                'consultation.prescriptions.generic:id,generic_name',
+                'consultation.prescriptions.brand:id,brand_name',
+            ])
+            ->where('disease_id', '!=', 0) // ensure valid rows only
+            ->whereHas('consultation', function ($q) use ($patient, $request) {
+                $q->where('patient_id', '=', $patient->id)
+                ->where('clinic_id', '=', $request->header('X-Clinic-ID'));
+            })
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($cd) {
+                return [
+                    'diagnosis_id'    => $cd->id,
+                    'disease_id'      => $cd->disease_id,
+                    'disease_name'    => $cd->disease_name_snapshot ?? 'Unknown',
+                    'type'            => $cd->type,
+                    'status'          => $cd->status,
+                    'symptoms'        => $cd->symptoms,
+                    'diagnosed_at'    => $cd->consultation->consultation_date,
+                    'consultation_id' => $cd->consultation_id,
+                    'chief_complaint' => $cd->consultation->chief_complaint,
+                    'notes'           => $cd->consultation->notes,
+                    'prescriptions'   => $cd->consultation->prescriptions->map(function ($rx) {
+                        return [
+                            'id'       => $rx->id,
+                            'generic'  => $rx->generic?->generic_name ?? $rx->generic_name_snapshot ?? 'Unknown',
+                            'brand'    => $rx->brand?->brand_name ?? $rx->brand_name_snapshot ?? 'Unknown',
+                            'dosage'   => $rx->dosage,
+                            'frequency'=> $rx->frequency,
+                            'duration' => $rx->duration,
+                        ];
+                    }),
+                ];
+            });
+
+        return response()->json($diagnoses);
+    }
 
     // — Shared access check —
-    // Doctors: own patients only
-    // Assistants: any patient in the shared clinic
+    // Both doctors and assistants can access any patient in the shared clinic
     private function authorizePatientAccess(Request $request, Patient $patient): void
     {
-        $user = $request->user();
+        $clinicId = $request->header('X-Clinic-ID');
 
-        if ($user->role === 'assistant') {
-            // Assistant must share a clinic with the patient
-            $clinicId = $request->header('X-Clinic-ID');
-            if ((string) $patient->clinic_id !== (string) $clinicId) {
-                abort(403, 'This patient does not belong to your active clinic.');
-            }
-        } else {
-            // Doctor must own the patient
-            if ($patient->created_by !== $user->id) {
-                abort(403, 'Forbidden');
-            }
+        if ((string) $patient->clinic_id !== (string) $clinicId) {
+            abort(403, 'This patient does not belong to your active clinic.');
         }
     }
 }

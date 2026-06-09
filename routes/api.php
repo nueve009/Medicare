@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // -------------------------------------------------------
     Route::middleware('clinic.access')->group(function () {
         Route::apiResource('patients', PatientController::class);
+        Route::get('patients/{patient}/diagnoses', [PatientController::class, 'diagnoses']);
 
         Route::apiResource('consultations', ConsultationController::class);
 

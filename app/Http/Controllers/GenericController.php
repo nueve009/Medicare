@@ -12,7 +12,6 @@ class GenericController extends Controller
         $user = $request->user();
 
         if ($user->role === 'assistant') {
-            // Find the doctor(s) sharing the same clinic
             $clinicId = $request->header('X-Clinic-ID');
             $doctorIds = \App\Models\Clinic::find($clinicId)
                 ->users()
@@ -20,12 +19,12 @@ class GenericController extends Controller
                 ->pluck('users.id');
 
             $generics = Generic::whereIn('created_by', $doctorIds)
-                ->withCount('brands')
+                ->with('brands')          // ← was withCount('brands')
                 ->orderBy('generic_name', 'asc')
                 ->get();
         } else {
             $generics = Generic::where('created_by', '=', $user->id)
-                ->withCount('brands')
+                ->with('brands')          // ← was withCount('brands')
                 ->orderBy('generic_name', 'asc')
                 ->get();
         }

@@ -9,22 +9,22 @@ use Illuminate\Support\Facades\DB;
 
 class ConsultationController extends Controller
 {
-    // 1. READ ALL (GET /api/consultations)
-    // Scoped to the active clinic via X-Clinic-ID header
     public function index(Request $request)
     {
         $query = Consultation::with([
                 'doctor:id,first_name,last_name',
                 'patient:id,first_name,last_name',
-                'prescriptions.generic:id,generic_name', // Added this
-                'prescriptions.brand:id,brand_name',     // Added this
+                'prescriptions.generic:id,generic_name',
+                'prescriptions.brand:id,brand_name',
+                'diseases' => function ($q) {
+                    $q->withPivot('id', 'type', 'status', 'symptoms', 'disease_name_snapshot');
+                },
             ])
-            ->where('clinic_id', $request->header('X-Clinic-ID'))
+            ->where('clinic_id', '=', $request->header('X-Clinic-ID'))
             ->orderBy('consultation_date', 'desc');
 
-        // Optional filter by patient
         if ($request->query('patient_id')) {
-            $query->where('patient_id', $request->query('patient_id'));
+            $query->where('patient_id', '=', $request->query('patient_id'));
         }
 
         return response()->json($query->paginate(20));
@@ -142,13 +142,15 @@ class ConsultationController extends Controller
     }
 
     // 3. READ ONE (GET /api/consultations/{consultation})
-    public function show(Consultation $consultation)
+   public function show(Consultation $consultation)
     {
         return response()->json(
             $consultation->load([
                 'doctor:id,first_name,last_name',
                 'patient:id,first_name,last_name',
-                'diseases:id,disease_name',
+                'diseases' => function ($q) {
+                    $q->withPivot('id', 'type', 'status', 'symptoms', 'disease_name_snapshot');
+                },
                 'prescriptions.generic:id,generic_name',
                 'prescriptions.brand:id,brand_name',
             ])

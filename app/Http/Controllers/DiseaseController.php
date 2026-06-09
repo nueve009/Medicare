@@ -12,9 +12,11 @@ class DiseaseController extends Controller
     {
         $diseases = Disease::where('clinic_id', $request->header('X-Clinic-ID'))
             ->withCount([
+                // Total diagnoses count
                 'consultations as total_diagnoses_count',
+                // Active diagnoses count — use whereIn on the pivot table directly
                 'consultations as active_diagnoses_count' => function ($query) {
-                    $query->wherePivotIn('status', ['ongoing', 'referred']);
+                    $query->whereIn('consultation_diseases.status', ['ongoing', 'referred']);
                 },
             ])
             ->orderBy('disease_name', 'asc')
