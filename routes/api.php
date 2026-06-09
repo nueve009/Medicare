@@ -8,6 +8,7 @@ use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\GenericController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Authorization is enforced inside ClinicController
     // -------------------------------------------------------
     Route::apiResource('clinics', ClinicController::class);
+    Route::get('users', [UserController::class, 'index']);
+    Route::put('users/{user}', [UserController::class, 'update']);
 
     // -------------------------------------------------------
     // Reference Data: Generics, Brands, Diseases
