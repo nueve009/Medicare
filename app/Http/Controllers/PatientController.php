@@ -23,15 +23,21 @@ class PatientController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'first_name'   => 'required|string|max:255',
-            'last_name'    => 'required|string|max:255',
-            'gender'       => 'nullable|string|in:male,female,other',
-            'birthdate'    => 'required|date',
-            'email'        => 'nullable|email|unique:patients,email',
-            'phone_number' => 'nullable|string|max:20',
-            'address'      => 'nullable|string',
-            'blood_type'   => 'nullable|string|max:5',
-            'clinic_id'    => 'required|exists:clinics,id',
+            'first_name'     => 'required|string|max:255',
+            'last_name'      => 'required|string|max:255',
+            'gender'         => 'nullable|string|in:male,female,other',
+            'birthdate'      => 'required|date',
+            'email'          => 'nullable|email|unique:patients,email',
+            'phone_number'   => 'nullable|string|max:20',
+            'address'        => 'nullable|string',
+            'blood_type'     => 'nullable|string|max:5',
+            'clinic_id'      => 'required|exists:clinics,id',
+            'civil_status'   => 'nullable|in:single,married,divorced,separated,widowed,minor',
+            'height'         => 'nullable|numeric|between:0,300',
+            'weight'         => 'nullable|numeric|between:0,600',
+            'temperature'    => 'nullable|numeric|between:30,45',
+            'blood_pressure' => 'nullable|string|max:10',
+            'allergies'      => 'nullable|string',
         ]);
 
         $validatedData['created_by'] = $request->user()->id;
@@ -60,14 +66,20 @@ class PatientController extends Controller
         $this->authorizePatientAccess($request, $patient);
 
         $validatedData = $request->validate([
-            'first_name'   => 'sometimes|string|max:255',
-            'last_name'    => 'sometimes|string|max:255',
-            'gender'       => 'nullable|string|in:male,female,other',
-            'birthdate'    => 'sometimes|date',
-            'email'        => 'nullable|email|unique:patients,email,' . $patient->id,
-            'phone_number' => 'nullable|string|max:20',
-            'address'      => 'nullable|string',
-            'blood_type'   => 'nullable|string|max:5',
+            'first_name'     => 'sometimes|string|max:255',
+            'last_name'      => 'sometimes|string|max:255',
+            'gender'         => 'nullable|string|in:male,female,other',
+            'birthdate'      => 'sometimes|date',
+            'email'          => 'nullable|email|unique:patients,email,' . $patient->id,
+            'phone_number'   => 'nullable|string|max:20',
+            'address'        => 'nullable|string',
+            'blood_type'     => 'nullable|string|max:5',
+            'civil_status'   => 'nullable|in:single,married,divorced,separated,widowed,minor',
+            'height'         => 'nullable|numeric|between:0,300',
+            'weight'         => 'nullable|numeric|between:0,600',
+            'temperature'    => 'nullable|numeric|between:30,45',
+            'blood_pressure' => 'nullable|string|max:10',
+            'allergies'      => 'nullable|string',
         ]);
 
         $patient->update($validatedData);
@@ -88,8 +100,9 @@ class PatientController extends Controller
             ], 403);
         }
 
-        // Doctors can only delete their own patients
-        if ($patient->created_by !== $request->user()->id) {
+        // Doctor must belong to the same clinic as the patient
+        $clinicId = $request->header('X-Clinic-ID');
+        if ((string) $patient->clinic_id !== (string) $clinicId) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -99,7 +112,7 @@ class PatientController extends Controller
             'message' => 'Patient archived successfully',
         ]);
     }
-    
+
     public function diagnoses(Request $request, Patient $patient)
     {
         // Enforce same access rules as show()
@@ -131,12 +144,12 @@ class PatientController extends Controller
                     'notes'           => $cd->consultation->notes,
                     'prescriptions'   => $cd->consultation->prescriptions->map(function ($rx) {
                         return [
-                            'id'       => $rx->id,
-                            'generic'  => $rx->generic?->generic_name ?? $rx->generic_name_snapshot ?? 'Unknown',
-                            'brand'    => $rx->brand?->brand_name ?? $rx->brand_name_snapshot ?? 'Unknown',
-                            'dosage'   => $rx->dosage,
-                            'frequency'=> $rx->frequency,
-                            'duration' => $rx->duration,
+                            'id'        => $rx->id,
+                            'generic'   => $rx->generic?->generic_name ?? $rx->generic_name_snapshot ?? 'Unknown',
+                            'brand'     => $rx->brand?->brand_name ?? $rx->brand_name_snapshot ?? 'Unknown',
+                            'dosage'    => $rx->dosage,
+                            'frequency' => $rx->frequency,
+                            'duration'  => $rx->duration,
                         ];
                     }),
                 ];

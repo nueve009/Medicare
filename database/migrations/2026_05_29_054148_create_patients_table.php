@@ -23,6 +23,13 @@ return new class extends Migration
             $table->string('phone_number', 20)->nullable();
             $table->text('address')->nullable();
             $table->string('blood_type', 5)->nullable();
+
+            $table->enum('civil_status', ['single', 'married', 'divorced', 'separated', 'widowed', 'minor'])->nullable();
+            $table->decimal('height', 5, 2)->nullable();
+            $table->decimal('weight', 5, 2)->nullable();
+            $table->decimal('temp', 5, 2)->nullable();
+            $table->string('bp', 10)->nullable();
+            $table->text('allergies')->nullable();
             
             $table->timestamps(); // Automatically adds created_at and updated_at
             $table->softDeletes(); // Automatically adds deleted_at for safe archiving

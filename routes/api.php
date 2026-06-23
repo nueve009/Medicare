@@ -8,6 +8,7 @@ use App\Http\Controllers\DiseaseController;
 use App\Http\Controllers\GenericController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\QueueController; 
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,29 +32,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // -------------------------------------------------------
-    // Admin-only: Clinics
-    // Authorization is enforced inside ClinicController
-    // -------------------------------------------------------
+    // Admin-only: Clinics & Users
     Route::apiResource('clinics', ClinicController::class);
     Route::get('users', [UserController::class, 'index']);
     Route::put('users/{user}', [UserController::class, 'update']);
 
-    // -------------------------------------------------------
     // Reference Data: Generics, Brands, Diseases
-    // No clinic scoping needed — these are global lookup tables
-    // -------------------------------------------------------
     Route::apiResource('generics', GenericController::class);
     Route::apiResource('brands', BrandController::class);
-
     Route::apiResource('diseases', DiseaseController::class);
     Route::get('diseases/{disease}/patients', [DiseaseController::class, 'patients']);
     Route::patch('diseases/{disease}/diagnoses/{diagnosis}', [DiseaseController::class, 'updateDiagnosisStatus']);
 
     // -------------------------------------------------------
     // Clinic-scoped Routes
-    // Requires X-Clinic-ID header. Middleware validates that
-    // the authenticated user belongs to the requested clinic.
     // -------------------------------------------------------
     Route::middleware('clinic.access')->group(function () {
         Route::apiResource('patients', PatientController::class);
@@ -61,9 +53,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('consultations', ConsultationController::class);
 
+        // Fixed: Added 'store' to prescriptions
         Route::apiResource('prescriptions', PrescriptionController::class)->only([
+            'store',
             'update',
             'destroy',
         ]);
+
+        // Queue routes
+        Route::get('queue', [QueueController::class, 'index']);
+        Route::post('queue', [QueueController::class, 'store']);
+        Route::delete('queue/{queueEntry}', [QueueController::class, 'destroy']);
+        Route::delete('queue/by-patient/{patientId}', [QueueController::class, 'destroyByPatient']);
     });
 });

@@ -20,7 +20,13 @@ class Patient extends Model
         'email',
         'phone_number',
         'address',
-        'blood_type'
+        'blood_type',
+        'civil_status',
+        'height',
+        'weight',
+        'temp',
+        'bp',
+        'allergies',
     ];
 
     // Define the relationship to the User who created the patient
