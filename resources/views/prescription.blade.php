@@ -22,18 +22,18 @@
     }
 
     .page {
-        width: 6.5in;
-        height: 9in; /* printable area after 1in margins */
-        margin: 0 auto;
-        padding: 0.1in;
-        position: relative;
+    width: 6.5in;
+    height: 9in;
+    margin: 0 auto;
+    padding: 0.5in 0.1in 0.1in 0.1in; /* top right bottom left */
+    position: relative;
     }
-
     /* HEADER */
     .header {
         text-align: center;
         border-bottom: 2px double #000;
         padding-bottom: 10px;
+        margin-top: 10px;
         margin-bottom: 15px;
     }
 
