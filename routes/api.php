@@ -10,6 +10,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\QueueController; 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PrescriptionPdfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('diseases', DiseaseController::class);
     Route::get('diseases/{disease}/patients', [DiseaseController::class, 'patients']);
     Route::patch('diseases/{disease}/diagnoses/{diagnosis}', [DiseaseController::class, 'updateDiagnosisStatus']);
+
+    Route::get(
+    'consultations/{consultation}/prescription-pdf/signed-url',
+    [PrescriptionPdfController::class, 'generateSignedUrl']
+    )->middleware('auth:sanctum');
 
     // -------------------------------------------------------
     // Clinic-scoped Routes
